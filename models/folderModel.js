@@ -17,6 +17,4 @@ const folderSchema = new mongoose.Schema({
     }
 });
 
-// TODO: aggiorna il campo 'updated' ad ogni modifica
-
 module.exports = folderSchema;

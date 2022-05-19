@@ -3,13 +3,12 @@
 const express = require('express');
 const router = express.Router();
 
-router.post('/login', (req, res) => {
-    // handle login
-});
 
-router.post('/register', (req, res) => {
-    // handle registration
-});
+const authHandler = require('../../controllers/userController');
+
+router.post('/login', authHandler.login);
+
+router.post('/register', authHandler.register);
 
 router.get('/google', (req, res) => {
     // handle google login
