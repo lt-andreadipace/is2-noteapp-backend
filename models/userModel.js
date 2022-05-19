@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
     googleaccount: {
         type: Boolean,
-        required: true
+        default: false
     },
     rootFolder: {
         type: folderSchema
