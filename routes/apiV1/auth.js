@@ -5,14 +5,12 @@ const router = express.Router();
 
 
 const authHandler = require('../../controllers/userController');
+const googleHandler = require('./googleauth');
 
 router.post('/login', authHandler.login);
 
 router.post('/register', authHandler.register);
 
-router.get('/google', (req, res) => {
-    // handle google login
-});
-
+router.use('/google', googleHandler);
 
 module.exports = router;

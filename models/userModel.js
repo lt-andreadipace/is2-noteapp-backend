@@ -31,13 +31,9 @@ const userSchema = new mongoose.Schema({
     },
     folders: {
         type: [folderSchema],
-        default: [] // add root folder
+        default: [] // TOOD: add root folder
     }
     //sharedPrefs: { preferences for all devices }
-});
-
-userSchema.pre('validate', function () {
-    // TODO: se non è con google, deve avere la password
 });
 
 

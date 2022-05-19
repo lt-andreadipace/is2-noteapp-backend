@@ -3,12 +3,25 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
 const userSchema = require('../models/userModel');  
 const User = mongoose.model('User');
 
 let MSG = {
     errorDuplicateEmail: "Email già esistente",
-    errorUserNotFound: "Username o password sbagliate"
+    errorUserNotFound: "Username o password sbagliate",
+    errorGoogle: "Impossibile accedere con Google"
+}
+
+let generateToken = (user) => {
+    return jwt.sign(
+        {
+            email: user.email,
+            name: user.name,
+            _id: user._id
+        },
+        process.env.JWT_SECRET
+    );
 }
 
 module.exports.register = (req, res) => {
@@ -21,18 +34,9 @@ module.exports.register = (req, res) => {
                 error: MSG.errorDuplicateEmail
             });
         } else {
-            return res.status(200).json(
-                {
-                    token: jwt.sign(
-                        {
-                            email: user.email,
-                            name: user.name,
-                            _id: user._id
-                        },
-                        process.env.JWT_SECRET
-                    )
-                }
-            );
+            return res.status(200).json({
+                token: generateToken(user)
+            });
         }
     });
 }
@@ -49,18 +53,52 @@ module.exports.login = (req, res) => {
                     error: MSG.errorUserNotFound
                 });
             }
-            return res.status(200).json(
-                {
-                    token: jwt.sign(
-                        {
-                            email: user.email,
-                            name: user.name,
-                            _id: user._id
-                        },
-                        process.env.JWT_SECRET
-                    )
-                }
-            );
+            return res.status(200).json({
+                token: generateToken(user)
+            });
+        }
+    );
+}
+
+module.exports.googleFailed = (req, res) => {
+    res.status(400)
+    .json({
+        error: MSG.errorGoogle
+    });
+}
+
+module.exports.google = (req, res) => {
+    let userGoogle = req.user._json;
+    let filterEmail = {
+        email: userGoogle.email
+    };
+    User.findOne(
+        filterEmail,
+        function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                userGoogle.googleaccount = true;
+                var newUserGoogle = new User(userGoogle);
+                newUserGoogle.save(function(err, user) {
+                    if (err) {
+                        return res.status(400).send({
+                            error: MSG.errorDuplicateEmail
+                        });
+                    } else {
+                        return res.status(200).json({
+                            token: generateToken(user)
+                        });
+                    }
+                });
+            }
+            else {
+                const update = { googleaccount: true };
+                let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
+                    return res.status(200).json({
+                        token: generateToken(user)
+                    });
+                });
+            }
         }
     );
 }
