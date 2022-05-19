@@ -25,6 +25,9 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    rootFolder: {
+        type: folderSchema
+    },
     documents: {
         type: [documentSchema],
         default: []
@@ -34,6 +37,10 @@ const userSchema = new mongoose.Schema({
         default: [] // TOOD: add root folder
     }
     //sharedPrefs: { preferences for all devices }
+});
+
+userSchema.pre('save', function () {
+    this.rootFolder = { name: 'root' };
 });
 
 

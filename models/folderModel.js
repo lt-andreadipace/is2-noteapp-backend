@@ -8,8 +8,7 @@ const folderSchema = new mongoose.Schema({
         required: true
     },
     parent: {
-        type: mongoose.ObjectId,
-        required: true
+        type: mongoose.ObjectId
     },
     created: {
         type: Date,

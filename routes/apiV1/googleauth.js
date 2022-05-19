@@ -17,7 +17,7 @@ router.use(passport.initialize());
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:5000/api/v1/auth/google/callback"
+    callbackURL: "http://localhost:5000/v1/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
       return done(null, profile);
