@@ -56,7 +56,7 @@ module.exports.read_note = (req, res) => {
                 });
             }
             else {
-                res.status(200).json(doc);
+                res.status(200).json(doc.documents[0]);
             }
         }
     );
@@ -104,7 +104,7 @@ module.exports.update_note = (req, res) => {
                         })
                     }
                     else {
-                        res.status(200).json(doc.documents);
+                        res.status(200).json(doc.documents[0]);
                     }
                 }
             );
