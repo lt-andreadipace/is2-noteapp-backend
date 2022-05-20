@@ -3,7 +3,8 @@
 const express = require('express');
 const apiV1 = express.Router();
 
-const authRouter = require('./apiV1/auth.js');
+const authRouter = require('./apiV1/auth');
+const notesCRUD = require('./apiV1/notesCRUD');
 
 // middleware that tracks request
 apiV1.use(function timeLog(req, res, next) {
@@ -12,5 +13,6 @@ apiV1.use(function timeLog(req, res, next) {
 });
 
 apiV1.use('/auth', authRouter);
+apiV1.use('/notes', notesCRUD);
 
 module.exports = apiV1;
