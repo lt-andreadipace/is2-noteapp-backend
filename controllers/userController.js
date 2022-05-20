@@ -20,7 +20,10 @@ let generateToken = (user) => {
             name: user.name,
             _id: user._id
         },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        {
+            expiresIn: '60 min'
+        }
     );
 }
 
@@ -69,6 +72,7 @@ module.exports.googleFailed = (req, res) => {
 
 module.exports.google = (req, res) => {
     let userGoogle = req.user._json;
+    req.logout(); // logout from google
     let filterEmail = {
         email: userGoogle.email
     };
@@ -94,9 +98,8 @@ module.exports.google = (req, res) => {
             else {
                 const update = { googleaccount: true };
                 let doc = User.findOneAndUpdate(filterEmail, update, (err, data) => {
-                    return res.status(200).json({
-                        token: generateToken(user)
-                    });
+                    let token = generateToken(user);
+                    return res.redirect("https://www.noteapp-is2.tk/google-redirect?token=" + token);
                 });
             }
         }
