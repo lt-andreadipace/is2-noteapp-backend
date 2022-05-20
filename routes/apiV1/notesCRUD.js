@@ -48,10 +48,9 @@ router.get('/', documentHandler.read_notes);
 
 router.post('/', documentHandler.create_note);
 
-
 router.get('/:noteid', checkNoteID, documentHandler.read_note);
 
-//router.put('/:noteid');
+router.put('/:noteid', checkNoteID, documentHandler.update_note);
 
 router.delete('/:noteid', checkNoteID, documentHandler.delete_note);
 

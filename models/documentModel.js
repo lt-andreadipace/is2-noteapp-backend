@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const Delta = require('quill-delta');
 
 const documentSchema = new mongoose.Schema({
     name: {
@@ -12,7 +13,8 @@ const documentSchema = new mongoose.Schema({
         required: true
     },
     content: {
-        type: String
+        type: String,
+        default: JSON.stringify(new Delta())
     },
     created: {
         type: Date,
@@ -29,5 +31,8 @@ const documentSchema = new mongoose.Schema({
 });
 
 // TODO: aggiorna il campo 'updated' ad ogni modifica
+documentSchema.pre('updateOne', function() {
+    console.log('ciao');
+})
 
 module.exports = documentSchema;

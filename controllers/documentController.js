@@ -2,6 +2,12 @@
 
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
+const Delta = require('quill-delta');
+
+let MSG = {
+    noteNotFound: "Nota non trovata",
+    updateFailed: "Salvataggio nota fallito"
+}
 
 module.exports.read_notes = (req, res) => {
     User.findById(req.user._id, "documents -_id", (err, docs) => {
@@ -16,8 +22,21 @@ module.exports.create_note = (req, res) => {
                 name: req.body.title
             }
         }
-    }, (err, doc) => {
-        res.json(doc.documents);
+    },
+    {
+        returnOriginal: false
+    },
+    (err, doc) => {
+        if (err) {
+            res.status(400).json({
+                error: MSG.noteNotFound
+            });
+        }
+        else {
+            let last = doc.documents[doc.documents.length - 1];
+            res.json(last);
+        }
+        
     });
 };
 
@@ -25,18 +44,72 @@ module.exports.read_note = (req, res) => {
     User.findOne(
         { 
             "_id": req.user._id,
-            "documents._id": req.noteid
+            "documents._id": mongoose.Types.ObjectId(req.noteid)
         },
-        "documents -_id",
+        {
+            "documents.$": 1
+        },
         (err, doc) => {
-            res.json(doc);
+            if (err) {
+                res.status(400).json({
+                    error: MSG.noteNotFound
+                });
+            }
+            else {
+                res.status(200).json(doc);
+            }
         }
     );
 
 };
 
 module.exports.update_note = (req, res) => {
-
+    User.findOne(
+        { 
+            "_id": req.user._id,
+            "documents._id": req.noteid
+        },
+        {
+            "documents.$": 1
+        },
+        (err, doc) => {
+            if (err) {
+                res.status(400).json({
+                    error: MSG.noteNotFound
+                });
+                return;
+            }
+            let content = doc.documents[0].content;
+            let delta_db = new Delta(content);
+            let delta_update = new Delta(req.body.ops);
+            let delta_final = delta_db.compose(delta_update);
+            User.findOneAndUpdate({
+                    "_id": req.user._id,
+                    "documents._id": req.noteid
+                },
+                {
+                    $set: {
+                        "documents.$.name": req.body.title,
+                        "documents.$.content": JSON.stringify(delta_final)
+                    }
+                },
+                {
+                    // returnOriginal: false, // error
+                    "fields": { "documents.$":1 }
+                },
+                (err, doc) => {
+                    if (err) {
+                        res.status(400).json({
+                            error: MSG.updateFailed
+                        })
+                    }
+                    else {
+                        res.status(200).json(doc.documents);
+                    }
+                }
+            );
+        }
+    );
 };
 
 module.exports.delete_note = (req, res) => {
@@ -49,9 +122,16 @@ module.exports.delete_note = (req, res) => {
             }
         },
         (err, doc) => {
-            res.json({
-                deleted: "ok"
-            });
+            if (err) {
+                res.status(400).json({
+                    error: MSG.noteNotFound
+                })
+            }
+            else {
+                res.status(200).json({
+                    deleted: "ok"
+                });
+            }
         }
     );
 }
