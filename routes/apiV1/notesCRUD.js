@@ -16,6 +16,7 @@ function checkUser(req, res, next) {
                 res.status(403).json({
                     error: "Bearer token invalido"
                 });
+                return;
             }
             req.token = token;
             req.user = decoded;

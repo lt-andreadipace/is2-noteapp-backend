@@ -22,7 +22,7 @@ let generateToken = (user) => {
         },
         process.env.JWT_SECRET,
         {
-            expiresIn: '60 min'
+            expiresIn: '1d'
         }
     );
 }
