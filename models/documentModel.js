@@ -31,7 +31,7 @@ const documentSchema = new mongoose.Schema({
 });
 
 // TODO: aggiorna il campo 'updated' ad ogni modifica
-documentSchema.pre('updateOne', function() {
+documentSchema.pre('update', function() {
     console.log('ciao');
 })
 
