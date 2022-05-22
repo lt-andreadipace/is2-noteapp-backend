@@ -5,6 +5,7 @@ const apiV1 = express.Router();
 
 const authRouter = require('./apiV1/auth');
 const notesCRUD = require('./apiV1/notesCRUD');
+const foldersCRUD = require('./apiV1/foldersCRUD');
 
 // middleware that tracks request
 apiV1.use(function timeLog(req, res, next) {
@@ -14,5 +15,6 @@ apiV1.use(function timeLog(req, res, next) {
 
 apiV1.use('/auth', authRouter);
 apiV1.use('/notes', notesCRUD);
+apiV1.use('/folders', foldersCRUD);
 
 module.exports = apiV1;

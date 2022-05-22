@@ -30,9 +30,4 @@ const documentSchema = new mongoose.Schema({
     }
 });
 
-// TODO: aggiorna il campo 'updated' ad ogni modifica
-documentSchema.pre('update', function() {
-    console.log('ciao');
-})
-
 module.exports = documentSchema;

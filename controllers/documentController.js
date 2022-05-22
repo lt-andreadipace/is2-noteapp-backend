@@ -16,10 +16,12 @@ module.exports.read_notes = (req, res) => {
 };
 
 module.exports.create_note = (req, res) => {
+    console.log(req.body.parent);
     User.findOneAndUpdate(req.user._id, {
         $push : {
             'documents' : {
-                name: req.body.title
+                name: req.body.title,
+                parent: mongoose.Types.ObjectId(req.body.parent)
             }
         }
     },
@@ -29,7 +31,7 @@ module.exports.create_note = (req, res) => {
     (err, doc) => {
         if (err) {
             res.status(400).json({
-                error: MSG.noteNotFound
+                error: MSG.updateFailed
             });
         }
         else {
@@ -135,4 +137,31 @@ module.exports.delete_note = (req, res) => {
             }
         }
     );
+}
+
+module.exports.move_document = (req, res) => {
+    User.findOneAndUpdate({
+        "_id": req.user._id,
+        "documents._id": req.noteid
+    },
+    {
+        $set: {
+            "documents.$.parent": req.body.newtitle
+        }
+    },
+    {
+        // returnOriginal: false, // error
+        "fields": { "documents.$":1 }
+    },
+    (err, doc) => {
+        if (err) {
+            res.status(400).json({
+                error: MSG.updateFailed
+            })
+        }
+        else {
+            res.status(200).json(doc.documents[0]);
+        }
+    }
+);
 }
