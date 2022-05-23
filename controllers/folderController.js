@@ -19,7 +19,9 @@ module.exports.read_folders = (req, res) => {
 
 module.exports.create_folder = (req, res) => {
     // check se esiste una cartella con lo stesso nome
-    User.findOneAndUpdate(req.user._id, {
+    User.findOneAndUpdate({
+        _id: req.user._id
+    }, {
         $push : {
             'folders' : {
                 name: req.body.name,
@@ -155,7 +157,9 @@ module.exports.delete_folder = (req, res) => {
             isFolder: true
         });
         console.log(toDelete);
-        User.findOneAndUpdate(req.user._id,
+        User.findOneAndUpdate({
+            _id: req.user._id
+        },
             {
                 $pull: {
                     "documents": {

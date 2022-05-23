@@ -17,7 +17,9 @@ module.exports.read_notes = (req, res) => {
 
 module.exports.create_note = (req, res) => {
     console.log(req.body.parent);
-    User.findOneAndUpdate(req.user._id, {
+    User.findOneAndUpdate({
+        _id: req.user._id
+    }, {
         $push : {
             'documents' : {
                 name: req.body.title,
@@ -116,7 +118,9 @@ module.exports.update_note = (req, res) => {
 };
 
 module.exports.delete_note = (req, res) => {
-    User.findOneAndUpdate(req.user._id,
+    User.findOneAndUpdate({
+        _id: req.user._id
+    },
         {
             $pull: {
                 "documents": {
