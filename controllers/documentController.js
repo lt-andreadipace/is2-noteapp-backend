@@ -162,6 +162,5 @@ module.exports.move_document = (req, res) => {
         else {
             res.status(200).json(doc.documents[0]);
         }
-    }
-);
+    });
 }

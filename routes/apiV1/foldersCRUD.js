@@ -6,6 +6,7 @@ const router = express.Router();
 const folderHandler = require('../../controllers/folderController');
 
 const bearerMiddleware = require('./middleware/bearer');
+const noteidMiddleware = require('./middleware/noteid');
 const folderidMiddleware = require('./middleware/folderid');
 
 router.use(bearerMiddleware.userCheck);
