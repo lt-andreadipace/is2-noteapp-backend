@@ -22,7 +22,7 @@ module.exports.create_note = (req, res) => {
     }, {
         $push : {
             'documents' : {
-                name: req.body.title,
+                name: req.body.name,
                 parent: mongoose.Types.ObjectId(req.body.parent)
             }
         }
@@ -85,7 +85,7 @@ module.exports.update_note = (req, res) => {
             }
             let content = doc.documents[0].content;
             let delta_db = new Delta(content);
-            let delta_update = new Delta(req.body.ops);
+            let delta_update = new Delta(req.body.newcontent);
             let delta_final = delta_db.compose(delta_update);
             User.findOneAndUpdate({
                     "_id": req.user._id,
@@ -93,9 +93,10 @@ module.exports.update_note = (req, res) => {
                 },
                 {
                     $set: {
-                        "documents.$.name": req.body.title,
+                        "documents.$.name": req.body.newparent,
                         "documents.$.content": JSON.stringify(delta_final),
-                        "documents.$.updated": Date.now()
+                        "documents.$.updated": Date.now(),
+                        "documents.$.parent": req.body.newparent
                     }
                 },
                 {
@@ -141,30 +142,4 @@ module.exports.delete_note = (req, res) => {
             }
         }
     );
-}
-
-module.exports.move_document = (req, res) => {
-    User.findOneAndUpdate({
-        "_id": req.user._id,
-        "documents._id": req.noteid
-    },
-    {
-        $set: {
-            "documents.$.parent": req.body.newtitle
-        }
-    },
-    {
-        // returnOriginal: false, // error
-        "fields": { "documents.$":1 }
-    },
-    (err, doc) => {
-        if (err) {
-            res.status(400).json({
-                error: MSG.updateFailed
-            })
-        }
-        else {
-            res.status(200).json(doc.documents[0]);
-        }
-    });
 }
