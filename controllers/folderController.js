@@ -146,7 +146,7 @@ function findAllIds(tree, root) {
 module.exports.delete_folder = (req, res) => {
     createTree(req.user._id)
     .then(tree => {
-        if (req.user.rootFolder._id == req.folderid) {
+        if (req.user.rootFolder == req.folderid) {
             res.status(400).json({
                 error: MSG.rootFolder
             });
