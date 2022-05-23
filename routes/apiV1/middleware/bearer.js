@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 module.exports.userCheck =  (req, res, next) => {
     let bearerToken = req.headers['authorization'];
     if (bearerToken) {

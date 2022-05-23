@@ -1,6 +1,5 @@
 'use strict';
 
-const jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
 
@@ -10,8 +9,6 @@ const bearerMiddleware = require('./middleware/bearer');
 const noteidMiddleware = require('./middleware/noteid');
 
 router.use(bearerMiddleware.userCheck);
-
-router.use(checkUser);
 
 router.get('/', documentHandler.read_notes);
 

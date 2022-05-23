@@ -44,7 +44,7 @@ module.exports.create_folder = (req, res) => {
     });
 };
 
-module.exports.move_folder = (req, res) => {
+module.exports.modify_folder = (req, res) => {
     User.findOneAndUpdate(
         { 
             "_id": req.user._id,
@@ -52,6 +52,7 @@ module.exports.move_folder = (req, res) => {
         },
         {
             $set: {
+                "folders.$.name": req.body.newname,
                 "folders.$.parent": req.body.newparent
             }
         },
@@ -139,37 +140,6 @@ function findAllIds(tree, root) {
         folders: folders
     };
 }
-
-module.exports.rename_folder = (req, res) => {
-    User.findOneAndUpdate(
-        { 
-            "_id": req.user._id,
-            "folders._id": req.folderid
-        },
-        {
-            $set: {
-                "folders.$.name": req.body.newname
-            }
-        },
-        {
-            "fields": { "folders.$":1 }
-        },
-        (err, doc) => {
-            if (err) {
-                res.status(400).json({
-                    error: MSG.folderNotFound
-                });
-            }
-            else {
-                res.status(200).json({
-                    moved: "ok"
-                });
-            }
-        }
-    )
-}
-
-
 
 module.exports.delete_folder = (req, res) => {
     createTree(req.user._id)
