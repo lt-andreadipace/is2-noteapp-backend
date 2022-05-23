@@ -93,7 +93,7 @@ module.exports.update_note = (req, res) => {
                 },
                 {
                     $set: {
-                        "documents.$.name": req.body.newparent,
+                        "documents.$.name": req.body.newname,
                         "documents.$.content": JSON.stringify(delta_final),
                         "documents.$.updated": Date.now(),
                         "documents.$.parent": req.body.newparent
