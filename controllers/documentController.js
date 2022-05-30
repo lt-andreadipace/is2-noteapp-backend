@@ -16,7 +16,6 @@ module.exports.read_notes = (req, res) => {
 };
 
 module.exports.create_note = (req, res) => {
-    console.log(req.body.parent);
     User.findOneAndUpdate({
         _id: req.user._id
     }, {

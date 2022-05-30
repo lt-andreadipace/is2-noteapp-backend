@@ -34,7 +34,11 @@ const userSchema = new mongoose.Schema({
     },
     folders: {
         type: [folderSchema],
-        default: [] // TOOD: add root folder
+        default: []
+    },
+    sharedWithMe: {
+        type: [String],
+        default: []
     }
     //sharedPrefs: { preferences for all devices }
 });

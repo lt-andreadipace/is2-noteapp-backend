@@ -156,7 +156,6 @@ module.exports.delete_folder = (req, res) => {
             id: req.folderid,
             isFolder: true
         });
-        console.log(toDelete);
         User.findOneAndUpdate({
             _id: req.user._id
         },

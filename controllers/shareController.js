@@ -10,6 +10,51 @@ let MSG = {
     updateFailed: "Salvataggio nota fallito"
 }
 
+module.exports.get_shared = (req, res) => {
+    User.findOne({
+        "_id": req.user._id
+    },
+    "sharedWithMe",
+    async (err, doc) => {
+        let toReturn = [], toDelete = [];
+        for (const id of doc.sharedWithMe) {
+            let idinfo = id.split(":");
+            let userid = idinfo[0];
+            let noteid = idinfo[1];
+            let response = await User.findOne({
+                "_id": userid,
+                "documents._id": noteid,
+                "documents.shared": true
+            });
+            let shared = response.documents.id(noteid);
+            if (shared && shared.shared) {
+                toReturn.push({
+                    name: shared.name,
+                    userid: userid,
+                    noteid: noteid
+                });
+            }
+            else {
+                toDelete.push(id);
+            }
+        };
+        if (toDelete.length) {
+            await User.findOneAndUpdate({
+                    _id: req.user._id
+                },
+                {
+                    $pull: {
+                        "sharedWithMe": {
+                            $in: toDelete
+                        }
+                    }
+                }
+            );
+        }
+        res.json(toReturn);
+    });
+}
+
 module.exports.make_public = (req, res) => {
     User.findOneAndUpdate({
         "_id": req.user._id,
@@ -21,9 +66,12 @@ module.exports.make_public = (req, res) => {
         }
     },
     {
-        returnOriginal: false
+        fields: {
+            "documents.$": 1
+        }
     },
     (err, doc) => {
+        console.log(doc.documents);
         if (err) {
             res.status(400).json({
                 error: MSG.updateFailed
@@ -47,7 +95,9 @@ module.exports.make_private = (req, res) => {
         }
     },
     {
-        returnOriginal: false
+        fields: {
+            "documents.$": 1
+        }
     },
     (err, doc) => {
         if (err) {
@@ -56,7 +106,7 @@ module.exports.make_private = (req, res) => {
             })
         }
         else {
-            doc.documents[0].shared = true;
+            doc.documents[0].shared = false;
             res.status(200).json(doc.documents[0]);
         }
     });
@@ -68,15 +118,28 @@ module.exports.share = (req, res) => {
         "documents._id": req.noteid,
         "documents.shared": true
     },
-    "documents.$",
-    (err, doc) => {
-        if (err || doc == undefined) {
+    async (err, doc) => {
+        let shared = doc.documents.id(req.noteid);
+        if (err || doc == undefined || shared == null) {
             res.status(400).json({
                 error: MSG.noteNotFound
-            })
+            });
         }
         else {
-            res.status(200).json(doc.documents[0]);   
+            if (req.user) {
+                let id = `${req.userid}:${req.noteid}`;
+                await User.findOneAndUpdate(
+                    {
+                        "_id": req.user._id
+                    },
+                    {
+                        "$addToSet": {
+                            "sharedWithMe": id
+                        }
+                    }
+                );
+                res.status(200).json(shared);
+            }
         }
     });
 }

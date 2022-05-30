@@ -23,3 +23,26 @@ module.exports.userCheck =  (req, res, next) => {
         });
     }
 }
+
+module.exports.userCheckNotMandatory = (req, res, next) => {
+    let bearerToken = req.headers['authorization'];
+    if (bearerToken) {
+        const bearer = bearerToken.split(" ");
+        const token = bearer[1];
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded) {
+            if (err) {
+                res.status(403).json({
+                    error: "Bearer token invalido"
+                });
+                return;
+            }
+            req.token = token;
+            req.user = decoded;
+        });
+    }
+    else {
+        req.token = undefined;
+        req.user = undefined;
+    }
+    next();
+}
