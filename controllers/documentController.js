@@ -87,6 +87,7 @@ module.exports.update_note = (req, res) => {
             let delta_db = new Delta(content);
             let delta_update = new Delta(req.body.newcontent);
             let delta_final = delta_db.compose(delta_update);
+            let newdate = Date.now();
             User.findOneAndUpdate({
                     "_id": req.user._id,
                     "documents._id": req.noteid
@@ -95,13 +96,14 @@ module.exports.update_note = (req, res) => {
                     $set: {
                         "documents.$.name": req.body.newname,
                         "documents.$.content": JSON.stringify(delta_final),
-                        "documents.$.updated": Date.now(),
+                        "documents.$.updated": newdate,
                         "documents.$.parent": req.body.newparent
                     }
                 },
                 {
-                    // returnOriginal: false, // error
-                    "fields": { "documents.$":1 }
+                    fields: {
+                        "documents.$": 1
+                    }
                 },
                 (err, doc) => {
                     if (err) {
@@ -110,6 +112,10 @@ module.exports.update_note = (req, res) => {
                         })
                     }
                     else {
+                        doc.documents[0].name = req.body.newname;
+                        doc.documents[0].content = JSON.stringify(delta_final);
+                        doc.documents[0].updated = newdate;
+                        doc.documents[0].parent = req.body.newparent;
                         res.status(200).json(doc.documents[0]);
                     }
                 }
@@ -120,14 +126,17 @@ module.exports.update_note = (req, res) => {
 
 module.exports.delete_note = (req, res) => {
     User.findOneAndUpdate({
-        _id: req.user._id
-    },
+            _id: req.user._id
+        },
         {
             $pull: {
                 "documents": {
                     "_id": req.noteid
                 }
             }
+        },
+        {
+            returnOriginal: false
         },
         (err, doc) => {
             if (err) {

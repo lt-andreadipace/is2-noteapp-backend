@@ -69,7 +69,7 @@ module.exports.modify_folder = (req, res) => {
             }
             else {
                 res.status(200).json({
-                    moved: "ok"
+                    modify: "ok"
                 });
             }
         }

@@ -30,6 +30,7 @@ module.exports.make_public = (req, res) => {
             })
         }
         else {
+            doc.documents[0].shared = true;
             res.status(200).json(doc.documents[0]);
         }
     });
@@ -55,6 +56,7 @@ module.exports.make_private = (req, res) => {
             })
         }
         else {
+            doc.documents[0].shared = true;
             res.status(200).json(doc.documents[0]);
         }
     });
