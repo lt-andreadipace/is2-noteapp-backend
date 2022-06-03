@@ -96,7 +96,8 @@ module.exports.update_note = (req, res) => {
                         "documents.$.name": req.body.newname,
                         "documents.$.content": JSON.stringify(delta_final),
                         "documents.$.updated": newdate,
-                        "documents.$.parent": req.body.newparent
+                        "documents.$.parent": req.body.newparent,
+                        "documents.$.starred": req.body.starred
                     }
                 },
                 {
@@ -115,6 +116,7 @@ module.exports.update_note = (req, res) => {
                         doc.documents[0].content = JSON.stringify(delta_final);
                         doc.documents[0].updated = newdate;
                         doc.documents[0].parent = req.body.newparent;
+                        doc.documents[0].starred = req.body.starred;
                         res.status(200).json(doc.documents[0]);
                     }
                 }

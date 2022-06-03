@@ -27,6 +27,10 @@ const documentSchema = new mongoose.Schema({
     shared: {
         type: Boolean,
         default: false
+    },
+    starred: {
+        type: Boolean,
+        default: false
     }
 });
 

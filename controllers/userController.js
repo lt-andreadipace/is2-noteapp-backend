@@ -19,7 +19,7 @@ let generateToken = (user) => {
             email: user.email,
             name: user.name,
             _id: user._id,
-	    rootFolder: user.rootFolder._id
+	        rootFolder: user.rootFolder._id
         },
         process.env.JWT_SECRET,
         {
