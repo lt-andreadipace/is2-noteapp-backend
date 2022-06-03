@@ -1,80 +1,117 @@
-const request = require('supertest');
-const app = require('./app');
+const app = require('../app');
+const config = require('../config');
 
+const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
-const userSchema = require('../models/userModel');  
+const userSchema = require('../models/userModel');
 const User = mongoose.model('User');
 
-const DB_CONNECTION_STRING = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.5lue6.mongodb.net/noteapp?retryWrites=true&w=majority`
+beforeAll(async () => {
+    app.locals.db = await config.initDB();
+})
 
-/*test('generate a token jwt from user (test@email.it,name,01a)', () => {
-    let user = new User({
-        email: "test@email.it",
-        name: "name",
-        _id: "01a"
+afterAll(() => { mongoose.connection.close(true); });
+
+describe("POST /v1/register", () => {
+
+    let userIds, response, user, userReq, res;
+
+    beforeAll(async () => {
+        jest.setTimeout(8000);
+        await User.findOneAndDelete({ email: "test@email.it" });
+        await User.findOneAndDelete({ email: "testR@email.it" });
     });
-    expect(jwt.verify(generateToken(user), process.env.JWT_SECRET)).toEqual(user);
-});*/
 
-describe('POST /v1/register', () => {
-
-    let response,userId,user;
-
-    beforeAll( async () => { jest.setTimeout(8000);
-        app.locals.db = await mongoose.connect(DB_CONNECTION_STRING); });
-
-    afterAll( () => { mongoose.connection.close(true); });
-
-    test('POST /v1/register correct', () => {
-        let userClear = {
+    test("POST /v1/register correct", async () => {
+        userReq = {
             email: "test@email.it",
             name: "name",
             password: "password"
         }
-        
-        response = request(app).post('/v1/register')
-        .send(userClear)
-        .set('Accept', 'application/json')
-        
-        userId = app.locals.db.findOne({email: "test@email.it"},{_id:1})._id
+
+        response = await request(app).post("/v1/auth/register")
+            .send(userReq)
+            .set("Accept", "application/json")
+        userIds = await User.findOne({ email: "test@email.it" }, { _id: 1, "rootFolder._id": 1 })
         user = {
-            _id: userId,
+            _id: userIds._id.valueOf(),
             email: "test@email.it",
             name: "name",
+            rootFolder: userIds.rootFolder._id.valueOf()
         }
+        res = jwt.verify(response._body.token, process.env.JWT_SECRET);
+        delete res.iat;
+        delete res.exp;
+        return expect({ status: response.status, user: res }).toEqual({ status: 200, user: user });
+    });
 
-        return response.expect(200,generateToken(user));
+    test("POST /v1/register already registered user", async () => {
+        userReq = {
+            email: "testR@email.it",
+            name: "name",
+            password: "password"
+        }
+        await request(app).post("/v1/auth/register")
+            .send(userReq)
+            .set("Accept", "application/json")
+        response = await request(app).post("/v1/auth/register")
+            .send(userReq)
+            .set("Accept", "application/json").expect(400);
+        return response
     });
 });
 
 describe('POST /v1/login', () => {
-    let userReq,userId,user;
-    beforeAll( async () => { jest.setTimeout(8000);
-        app.locals.db = await mongoose.connect(DB_CONNECTION_STRING); 
-        userReq = {
-            email: "test@email.it",
+    let registeredUsr, wrongUsr, userIds, user, response, res;
+
+    beforeAll(async () => {
+        jest.setTimeout(8000);
+        await User.findOneAndDelete({ email: "test1@email.it" });
+        registeredUsr = {
+            name: "name", //Temporary
+            email: "test1@email.it",
             password: "password"
         }
-        userId = app.locals.db.findOne({email: "test@email.it"},{_id:1})._id
+        await request(app).post("/v1/auth/register")
+            .send(registeredUsr)
+            .set("Accept", "application/json")
+    });
+
+    afterAll(async () => { await User.findOneAndDelete({ email: "test1@email.it" }); });
+
+    test('POST /v1/login correct', async () => {
+        response = await request(app).post('/v1/auth/login')
+            .send(registeredUsr)
+            .set('Accept', 'application/json')
+
+        userIds = await User.findOne({ email: "test1@email.it" }, { _id: 1, "rootFolder._id": 1 })
+        delete registeredUsr.name
         user = {
-            _id: userId,
-            email: "test@email.it",
+            _id: userIds._id.valueOf(),
+            email: "test1@email.it",
             name: "name",
+            rootFolder: userIds.rootFolder._id.valueOf()
         }
+
+        res = jwt.verify(response._body.token, process.env.JWT_SECRET);
+        delete res.iat;
+        delete res.exp;
+        return expect({ status: response.status, user: res }).toEqual({ status: 200, user: user });
     });
 
-    afterAll( () => { mongoose.connection.close(true); });
-
-    test('POST /v1/login correct', () => {
-        let repsonse = request(app).post('/v1/login')
-        .send(user)
-        .set('Accept', 'application/json')
-
-
-        return response.expect(200, user);
+    test("POST /v1/login wrong password", async () => {
+        wrongUsr = {
+            email: "test1@email.it",
+            password: "wrongPwd"
+        }
+        
+        return request(app).post("/v1/auth/login")
+            .send(wrongUsr)
+            .set("Accept", "application/json").expect(403);
     });
+
 });
 
 //.set('Authorization', "Bearer " + token)
