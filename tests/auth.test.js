@@ -8,47 +8,52 @@ const mongoose = require('mongoose');
 const userSchema = require('../models/userModel');
 const User = mongoose.model('User');
 
+let connection;
+
+jest.setTimeout(10000);
+
 beforeAll(async () => {
-    app.locals.db = await config.initDB();
+    connection = await config.initDB();
 })
 
-afterAll(() => { mongoose.connection.close(true); });
+afterAll(async () => {
+    await mongoose.connection.close(true);
+})
+
+afterAll(async () => { await mongoose.connection.close(true); });
 
 describe("POST /v1/register", () => {
 
-    let userIds, response, user, userReq, res;
-
     beforeAll(async () => {
-        jest.setTimeout(8000);
         await User.findOneAndDelete({ email: "test@email.it" });
         await User.findOneAndDelete({ email: "testR@email.it" });
     });
 
-    test("POST /v1/register correct", async () => {
-        userReq = {
+    test("POST /v1/register sucsessful", async () => {
+        let userReq = {
             email: "test@email.it",
             name: "name",
             password: "password"
         }
 
-        response = await request(app).post("/v1/auth/register")
+        let response = await request(app).post("/v1/auth/register")
             .send(userReq)
             .set("Accept", "application/json")
-        userIds = await User.findOne({ email: "test@email.it" }, { _id: 1, "rootFolder._id": 1 })
-        user = {
+        let userIds = await User.findOne({ email: userReq.email }, { _id: 1, "rootFolder._id": 1 })
+        let user = {
             _id: userIds._id.valueOf(),
             email: "test@email.it",
             name: "name",
             rootFolder: userIds.rootFolder._id.valueOf()
         }
-        res = jwt.verify(response._body.token, process.env.JWT_SECRET);
+        let res = jwt.verify(response._body.token, process.env.JWT_SECRET);
         delete res.iat;
         delete res.exp;
         return expect({ status: response.status, user: res }).toEqual({ status: 200, user: user });
     });
 
     test("POST /v1/register already registered user", async () => {
-        userReq = {
+        let userReq = {
             email: "testR@email.it",
             name: "name",
             password: "password"
@@ -56,7 +61,7 @@ describe("POST /v1/register", () => {
         await request(app).post("/v1/auth/register")
             .send(userReq)
             .set("Accept", "application/json")
-        response = await request(app).post("/v1/auth/register")
+        let response = await request(app).post("/v1/auth/register")
             .send(userReq)
             .set("Accept", "application/json").expect(400);
         return response
@@ -64,54 +69,49 @@ describe("POST /v1/register", () => {
 });
 
 describe('POST /v1/login', () => {
-    let registeredUsr, wrongUsr, userIds, user, response, res;
+
+    let registeredUsr;
 
     beforeAll(async () => {
-        jest.setTimeout(8000);
-        await User.findOneAndDelete({ email: "test1@email.it" });
         registeredUsr = {
             name: "name", //Temporary
             email: "test1@email.it",
             password: "password"
         }
+        await User.findOneAndDelete({ email: registeredUsr.email });
         await request(app).post("/v1/auth/register")
             .send(registeredUsr)
             .set("Accept", "application/json")
     });
 
-    afterAll(async () => { await User.findOneAndDelete({ email: "test1@email.it" }); });
-
-    test('POST /v1/login correct', async () => {
-        response = await request(app).post('/v1/auth/login')
+    test('POST /v1/login successful', async () => {
+        let response = await request(app).post('/v1/auth/login')
             .send(registeredUsr)
             .set('Accept', 'application/json')
 
-        userIds = await User.findOne({ email: "test1@email.it" }, { _id: 1, "rootFolder._id": 1 })
-        delete registeredUsr.name
-        user = {
+        let userIds = await User.findOne({ email: registeredUsr.email }, { _id: 1, "rootFolder._id": 1 })
+        let user = {
             _id: userIds._id.valueOf(),
-            email: "test1@email.it",
-            name: "name",
+            email: registeredUsr.email,
+            name: registeredUsr.name,
             rootFolder: userIds.rootFolder._id.valueOf()
         }
 
-        res = jwt.verify(response._body.token, process.env.JWT_SECRET);
+        let res = jwt.verify(response._body.token, process.env.JWT_SECRET);
         delete res.iat;
         delete res.exp;
         return expect({ status: response.status, user: res }).toEqual({ status: 200, user: user });
     });
 
     test("POST /v1/login wrong password", async () => {
-        wrongUsr = {
-            email: "test1@email.it",
+        let wrongUsr = {
+            email: registeredUsr.email,
             password: "wrongPwd"
         }
-        
+
         return request(app).post("/v1/auth/login")
             .send(wrongUsr)
             .set("Accept", "application/json").expect(403);
     });
 
 });
-
-//.set('Authorization', "Bearer " + token)
