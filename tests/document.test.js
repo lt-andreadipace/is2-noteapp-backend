@@ -10,7 +10,6 @@ const userSchema = require('../models/userModel');
 const User = mongoose.model('User');
 
 let connection;
-jest.setTimeout(15000);
 
 beforeAll(async () => {
     connection = await config.initDB("testDb");
@@ -55,6 +54,7 @@ describe("POST /v1/notes", () => {
             created: createdNote.created.toISOString(),
             parent: toCreate.parent,
             shared: false,
+            starred: false,
         }
         return expect({ status: response.status, note: JSON.parse(response.text) }).toEqual({ status: 200, note: toCheck });
     });

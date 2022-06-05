@@ -68,7 +68,7 @@ module.exports.modify_folder = (req, res) => {
                 });
             }
             else {
-                res.status(200);
+                res.status(200).end();
             }
         }
     )
@@ -181,7 +181,7 @@ module.exports.delete_folder = (req, res) => {
                     });
                 }
                 else {
-                    res.status(200);
+                    res.status(200).end();
                 }
             }
         );

@@ -10,8 +10,6 @@ const User = mongoose.model('User');
 
 let connection;
 
-jest.setTimeout(15000);
-
 beforeAll(async () => {
     connection = await config.initDB("testDb");
 })
@@ -19,8 +17,6 @@ beforeAll(async () => {
 afterAll(async () => {
     await mongoose.connection.close(true);
 })
-
-afterAll(async () => { await mongoose.connection.close(true); });
 
 describe("POST /v1/register", () => {
 

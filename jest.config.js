@@ -1,4 +1,5 @@
 module.exports = {
     setupFiles: ["<rootDir>/.jest/setEnvVars.js"],
-    verbose: true
+    verbose: true,
+    testTimeout: 15000
 }

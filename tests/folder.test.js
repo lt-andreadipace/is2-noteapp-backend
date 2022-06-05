@@ -10,7 +10,6 @@ const userSchema = require('../models/userModel');
 const User = mongoose.model('User');
 
 let connection;
-jest.setTimeout(15000);
 
 beforeAll(async () => {
     connection = await config.initDB("testDb");
