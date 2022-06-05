@@ -82,7 +82,10 @@ const updateHandler = (update, origin, doc) => {
   encoding.writeVarUint(encoder, messageSync)
   syncProtocol.writeUpdate(encoder, update)
   const message = encoding.toUint8Array(encoder)
-  doc.conns.forEach((_, conn) => send(doc, conn, message))
+  doc.conns.forEach((_, conn) => {
+    send(doc, conn, message)
+    //TODO: update db
+  })
 }
 
 class WSSharedDoc extends Y.Doc {

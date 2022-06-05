@@ -112,6 +112,20 @@ module.exports.make_private = (req, res) => {
     });
 }
 
+module.exports.getSharedDoc = async (userid, noteid) => {
+    let result = await User.findOne({
+        "_id": userid,
+        "documents._id": noteid,
+        "documents.shared": true
+    });
+    if (result == null)
+        return false;
+    let shared = result.documents.id(noteid);
+    if (shared == null)
+        return false;
+    return true;
+}
+
 module.exports.share = (req, res) => {
     User.findOne({
         "_id": req.userid,
