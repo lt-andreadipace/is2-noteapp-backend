@@ -1,0 +1,27 @@
+# This is a basic workflow that deploy the app on the VPS when a push is done on the branch develop
+
+name: Node.js CD
+ 
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+  
+    steps:
+    #TODO: add the test command
+    - name: Deploy using ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: 22
+        script: |
+          cd /home/${{ secrets.USERNAME }}/NoteApp-Backend
+          git pull origin develop
+          npm install --only=prod
+          echo "${{ secrets.PASSWORD }}" | sudo -S systemctl restart noteappbackend.service
+          
