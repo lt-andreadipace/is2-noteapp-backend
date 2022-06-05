@@ -79,7 +79,7 @@ module.exports.make_public = (req, res) => {
         }
         else {
             doc.documents[0].shared = true;
-            res.status(200).json(doc.documents[0]);
+            res.status(200);
         }
     });
 }
@@ -107,7 +107,7 @@ module.exports.make_private = (req, res) => {
         }
         else {
             doc.documents[0].shared = false;
-            res.status(200).json(doc.documents[0]);
+            res.status(200);
         }
     });
 }
@@ -126,7 +126,7 @@ module.exports.share = (req, res) => {
             });
         }
         else {
-            if (req.user) {
+            if (req.user._id != req.userid) {
                 let id = `${req.userid}:${req.noteid}`;
                 await User.findOneAndUpdate(
                     {
@@ -138,8 +138,8 @@ module.exports.share = (req, res) => {
                         }
                     }
                 );
-                res.status(200).json(shared);
             }
+            res.status(200).json(shared);
         }
     });
 }

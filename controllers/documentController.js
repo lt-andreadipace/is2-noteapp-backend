@@ -146,9 +146,7 @@ module.exports.delete_note = (req, res) => {
                 })
             }
             else {
-                res.status(200).json({
-                    deleted: "ok"
-                });
+                res.status(200);
             }
         }
     );
