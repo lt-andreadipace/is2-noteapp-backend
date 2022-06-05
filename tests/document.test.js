@@ -4,17 +4,16 @@ const config = require('../config');
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const Delta = require('quill-delta');
 
 const userSchema = require('../models/userModel');
 
 const User = mongoose.model('User');
 
 let connection;
-jest.setTimeout(10000);
+jest.setTimeout(15000);
 
 beforeAll(async () => {
-    connection = await config.initDB();
+    connection = await config.initDB("testDb");
 })
 
 afterAll(async () => {
@@ -38,7 +37,7 @@ describe("POST /v1/notes", () => {
         userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
     });
 
-    test("POST /v1/notes correct", async () => {
+    test("POST /v1/notes successful", async () => {
         let toCreate = {
             name: "name",
             parent: userIds.rootFolder._id.valueOf()

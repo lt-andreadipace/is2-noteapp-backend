@@ -10,10 +10,10 @@ const User = mongoose.model('User');
 
 let connection;
 
-jest.setTimeout(10000);
+jest.setTimeout(15000);
 
 beforeAll(async () => {
-    connection = await config.initDB();
+    connection = await config.initDB("testDb");
 })
 
 afterAll(async () => {
