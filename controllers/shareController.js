@@ -71,7 +71,6 @@ module.exports.make_public = (req, res) => {
         }
     },
     (err, doc) => {
-        console.log(doc.documents);
         if (err) {
             res.status(400).json({
                 error: MSG.updateFailed
@@ -79,7 +78,7 @@ module.exports.make_public = (req, res) => {
         }
         else {
             doc.documents[0].shared = true;
-            res.status(200);
+            res.status(200).end();
         }
     });
 }
@@ -107,7 +106,7 @@ module.exports.make_private = (req, res) => {
         }
         else {
             doc.documents[0].shared = false;
-            res.status(200);
+            res.status(200).end();
         }
     });
 }

@@ -35,7 +35,7 @@ describe("POST /v1/register", () => {
         let response = await request(app).post("/v1/auth/register")
             .send(userReq)
             .set("Accept", "application/json")
-        let userIds = await User.findOne({ email: userReq.email }, { _id: 1, "rootFolder._id": 1 })
+        let userIds = await User.findOne({ email: userReq.email }, { "rootFolder._id": 1 })
         let user = {
             _id: userIds._id.valueOf(),
             email: "test@email.it",
@@ -85,7 +85,7 @@ describe('POST /v1/login', () => {
             .send(registeredUsr)
             .set('Accept', 'application/json')
 
-        let userIds = await User.findOne({ email: registeredUsr.email }, { _id: 1, "rootFolder._id": 1 })
+        let userIds = await User.findOne({ email: registeredUsr.email }, { "rootFolder._id": 1 })
         let user = {
             _id: userIds._id.valueOf(),
             email: registeredUsr.email,

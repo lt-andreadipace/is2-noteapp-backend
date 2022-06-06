@@ -33,7 +33,7 @@ describe("POST /v1/folders", () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
     });
 
     test("POST /v1/folders successful", async () => {
@@ -70,7 +70,7 @@ describe('GET /v1/folders', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
         folder = (await request(app).post("/v1/folders")
             .send({
                 name: "name",
@@ -102,7 +102,7 @@ describe('PUT /v1/folders/:folderid', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        let parentId = (await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })).rootFolder._id.valueOf()
+        let parentId = (await User.findOne({ email: email }, { _id: 0, "rootFolder._id": 1 })).rootFolder._id.valueOf()
         folder = (await request(app).post("/v1/folders")
             .send({
                 name: "name",
@@ -145,7 +145,7 @@ describe('DELETE /v1/folders/:folderid', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
         folderId = (await request(app).post("/v1/notes")
             .send({
                 name: "name",

@@ -33,7 +33,7 @@ describe("POST /v1/notes", () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
     });
 
     test("POST /v1/notes successful", async () => {
@@ -74,7 +74,7 @@ describe('GET /v1/notes', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
         note = (await request(app).post("/v1/notes")
             .send({
                 name: "name",
@@ -106,7 +106,7 @@ describe('GET /v1/notes/:noteid', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        let parentId = (await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })).rootFolder._id
+        let parentId = (await User.findOne({ email: email }, { _id: 0, "rootFolder._id": 1 })).rootFolder._id
         note = (await request(app).post("/v1/notes")
             .send({
                 name: "name",
@@ -137,7 +137,7 @@ describe('PUT /v1/notes/:noteid', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
         note = (await request(app).post("/v1/notes")
             .send({
                 name: "name",
@@ -184,7 +184,7 @@ describe('DELETE /v1/notes/:noteid', () => {
                 password: "password"
             })
             .set("Accept", "application/json"))._body.token
-        userIds = await User.findOne({ email: email }, { _id: 1, "rootFolder._id": 1 })
+        userIds = await User.findOne({ email: email }, { "rootFolder._id": 1 })
         noteId = (await request(app).post("/v1/notes")
             .send({
                 name: "name",
