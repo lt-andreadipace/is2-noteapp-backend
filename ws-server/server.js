@@ -15,6 +15,7 @@ const serverHandleUpgrade = (request, socket, head) => {
 	const handleAuth = async (ws) => {
 		try {
 			let url = request.url;
+			url = url.split("/")[2];
 			let urlparsed = urlParser.parse(url, true);
 			let token = urlparsed.query.auth;
 			if (token == undefined) {
@@ -24,7 +25,8 @@ const serverHandleUpgrade = (request, socket, head) => {
 			let tokenResult = await jwt.verify(token, process.env.JWT_SECRET);
 
 			// check if document is shared
-			let room = url.slice(1).split('?')[0].split(":");
+			let room = url.split('?')[0].split(":");
+			console.log(room);
 			let userid = room[0], noteid = room[1];
 			let document = await documentController.getSharedDoc(userid, noteid);
 			if (document == false) {
@@ -32,6 +34,7 @@ const serverHandleUpgrade = (request, socket, head) => {
 			}
 		}
 		catch (error) {
+			console.log(error);
 			socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
 			socket.destroy();
 			return;
