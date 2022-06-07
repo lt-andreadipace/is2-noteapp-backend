@@ -1,6 +1,4 @@
-# This is a basic workflow that deploy the app on the VPS when a push is done on the branch develop
-
-name: Node.js CD
+name: Node.js CI/CD
  
 on:
   push:
@@ -11,7 +9,13 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
-    #TODO: add the test command
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12 
+      uses: actions/setup-node@v2
+      with:
+        node-version: 12.x
+    - run: npm i
+    - run: npm test
     - name: Deploy using ssh
       uses: appleboy/ssh-action@master
       with:
