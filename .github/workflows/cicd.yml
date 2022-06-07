@@ -5,17 +5,33 @@ on:
     branches: [ develop ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
+    env:
+      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+
+      PORT: ${{ secrets.PORT }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_CALLBACK: ${{ secrets.GOOGLE_CALLBACK }}
   
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Use Node.js 12 
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: 12.x
     - run: npm i
     - run: npm test
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
     - name: Deploy using ssh
       uses: appleboy/ssh-action@master
       with:
