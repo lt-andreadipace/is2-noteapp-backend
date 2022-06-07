@@ -26,10 +26,17 @@
     "mongoose": "^6.3.3",
     "passport": "^0.5.3",
     "passport-google-oauth": "^2.0.0",
+<<<<<<< HEAD
     "quill-delta": "^5.0.0"
   },
   "devDependencies": {
     "jest": "^28.1.0",
     "supertest": "^6.2.3"
+=======
+    "quill-delta": "^5.0.0",
+    "ws": "^8.7.0",
+    "y-websocket": "^1.4.3",
+    "yjs": "^13.5.38"
+>>>>>>> feature-condivisone_modifica
   }
 }
