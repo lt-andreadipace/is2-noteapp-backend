@@ -26,7 +26,6 @@ const serverHandleUpgrade = (request, socket, head) => {
 
 			// check if document is shared
 			let room = url.split('?')[0].split(":");
-			console.log(room);
 			let userid = room[0], noteid = room[1];
 			let document = await documentController.getSharedDoc(userid, noteid);
 			if (document == false) {

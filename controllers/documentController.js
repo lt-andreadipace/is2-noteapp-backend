@@ -66,6 +66,62 @@ module.exports.read_note = (req, res) => {
 
 };
 
+module.exports.update_shared_note = (req, res) => {
+    User.findOne(
+        { 
+            "_id": req.userid
+        },
+        (err, doc) => {
+            if (err) {
+                res.status(400).json({
+                    error: MSG.noteNotFound
+                });
+                return;
+            }
+            let note = doc.documents.id(req.noteid);
+            if (note == null || note.shared == false) {
+                res.status(400).json({
+                    error: MSG.noteNotFound
+                });
+                return;
+            }
+            let content = note.content;
+            let delta_db = new Delta(content);
+            let delta_update = new Delta(req.body.newcontent);
+            let delta_final = delta_db.compose(delta_update);
+            let newdate = Date.now();
+            User.findOneAndUpdate({
+                    "_id": req.userid,
+                    "documents._id": req.noteid
+                },
+                {
+                    $set: {
+                        "documents.$.content": JSON.stringify(delta_final),
+                        "documents.$.updated": newdate
+                    }
+                },
+                {
+                    fields: {
+                        "documents.$": 1
+                    }
+                },
+                (err, doc) => {
+                    if (err) {
+                        res.status(400).json({
+                            error: MSG.updateFailed
+                        })
+                    }
+                    else {
+                        res.status(200).end();
+                    }
+                }
+            );
+        }
+    );
+
+}
+
+
 module.exports.update_note = (req, res) => {
     User.findOne(
         { 
